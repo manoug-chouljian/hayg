@@ -1,3 +1,0 @@
-    { name: 'Քրիստափոր Միքայէլեան', image: 'https://upload.wikimedia.org/wikipedia/en/1/1f/Db_1a_Chrisdapr1.jpg' },
-    { name: 'Սիմոն Զաւարեան', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8f/Zavarian.JPG' },
-    { name: 'Ստեփան Զօրեան', image: 'https://upload.wikimedia.org/wikipedia/commons/1/18/Stepan_Zorian-1.png' },
