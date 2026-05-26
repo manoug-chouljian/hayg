@@ -400,19 +400,24 @@
 }
 
 .game-message {
-    position: absolute;
-    top: -20px;
-    padding: 8px 16px;
-    border-radius: 8px;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    padding: 10px 20px;
+    border-radius: 12px;
     background: var(--text-color);
     color: var(--bg-color);
     font-weight: 600;
+    font-size: 1.1rem;
     opacity: 0;
-    transition: all 0.3s ease;
-    z-index: 100;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .game-message.show {
     opacity: 1;
-    transform: translateY(-10px);
+    transform: translate(-50%, -50%) scale(1);
 }

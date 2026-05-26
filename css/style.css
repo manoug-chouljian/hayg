@@ -1385,6 +1385,11 @@ footer {
     font-weight: 600;
 }
 
+html.modal-open,
+body.modal-open {
+    overflow: hidden !important;
+}
+
 /* Auth Modal */
 .modal {
     display: none;
@@ -1597,13 +1602,13 @@ body:not(.dark-mode) .btn-google {
     background: #ffffff;
     color: #444;
     border: 1px solid #e0e0e0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 body:not(.dark-mode) .btn-google:hover {
     background: #fcfcfc;
     border-color: #d0d0d0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Toasts */

@@ -74,20 +74,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    function generateWords() {
-        currentWords = [];
-        // Use typingWords from words.js if available, else fallback
-        const wordPool = (typeof typingWords !== 'undefined' && typingWords.length > 0) ? typingWords : targetWords;
-
-        for (let i = 0; i < 50; i++) {
-            const randomWord = wordPool[Math.floor(Math.random() * wordPool.length)].toLowerCase();
-            currentWords.push(randomWord);
-        }
+    function cleanParagraph(text) {
+        return text
+            .replace(/և/g, "եւ")
+            .toLowerCase()
+            .replace(/[-—–]/g, " ")
+            .replace(/[^ա-ֆ\s]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
     }
 
-    function renderWords() {
-        wordsDisplay.innerHTML = '';
-        currentWords.forEach((word, wIndex) => {
+    function appendParagraphWords(paragraph) {
+        const cleaned = cleanParagraph(paragraph);
+        const words = cleaned.split(" ").filter(w => w.length > 0);
+        
+        const startIndex = currentWords.length;
+        words.forEach((word, index) => {
+            const wIndex = startIndex + index;
+            currentWords.push(word);
+
             const wordEl = document.createElement("div");
             wordEl.className = "word";
             wordEl.id = `word-${wIndex}`;
@@ -101,7 +106,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             wordsDisplay.appendChild(wordEl);
         });
+    }
 
+    function generateWords() {
+        currentWords = [];
+        wordsDisplay.innerHTML = '';
+        wordsDisplay.style.transform = "translateY(0)";
+
+        const paragraphPool = (typeof typingParagraphs !== 'undefined' && typingParagraphs.length > 0) ? typingParagraphs : [
+            "Հայաստանը հնագոյն երկիր է, որը յայտնի է իր հարուստ մշակոյթով եւ գեղեցիկ բնութեամբ։"
+        ];
+
+        // Shuffle and append the first 5 paragraphs
+        const shuffled = [...paragraphPool].sort(() => Math.random() - 0.5);
+        shuffled.forEach(para => {
+            appendParagraphWords(para);
+        });
+    }
+
+    function renderWords() {
         updateActiveLetter();
     }
 
@@ -171,7 +194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Dynamic title
         const resultTitle = document.querySelector("#typing-result-overlay h2");
         if (resultTitle) {
-            resultTitle.innerHTML = `${timer > 0 ? "Ամբողջացուեցաւ" : "Ժամանակը սպառուեցաւ"}`;
+            resultTitle.innerHTML = `${timer > 0 ? "Ամբողջացուցիք" : "Ժամանակը սպառուեցաւ"}`;
         }
 
         document.getElementById("typing-result-overlay").classList.remove("hidden");
@@ -207,7 +230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         accuracyDisplay.textContent = "100%";
         wordsDisplay.style.transform = "translateY(0)";
 
-        focusOverlay.textContent = "Սեղմէ հոս կամ սկսիր տպել";
+        focusOverlay.textContent = "Սկսիր տպել";
         focusOverlay.classList.remove('hidden');
         document.getElementById("typing-result-overlay").classList.add("hidden");
 
@@ -323,6 +346,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 currentWordIndex++;
                 currentLetterIndex = 0;
+
+                // If close to the end, dynamically load and append another paragraph
+                if (currentWordIndex >= currentWords.length - 3) {
+                    const paragraphPool = (typeof typingParagraphs !== 'undefined' && typingParagraphs.length > 0) ? typingParagraphs : [
+                        "Հայաստանը հնագոյն երկիր է, որը յայտնի է իր հարուստ մշակոյթով եւ գեղեցիկ բնութեամբ։"
+                    ];
+                    const randomPara = paragraphPool[Math.floor(Math.random() * paragraphPool.length)];
+                    appendParagraphWords(randomPara);
+                }
+
                 updateActiveLetter();
             } else if (currentWordIndex === currentWords.length - 1 && currentLetterIndex === currentWords[currentWordIndex].length) {
                 // Finished last word!

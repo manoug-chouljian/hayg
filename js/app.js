@@ -367,7 +367,7 @@ function renderPersonalDashboard(data) {
 
     const milestoneText = rankInfo.current.name === rankInfo.next.name
         ? `Առաւելագոյն Մակարդակ!`
-        : `Յաջորդ: ${rankInfo.next.emoji} ${rankInfo.next.name} (${rankInfo.next.xp} XP)`;
+        : `Յաջորդը՝ ${rankInfo.next.emoji} ${rankInfo.next.name} (${rankInfo.next.xp} XP)`;
     document.getElementById('dash-next-text').textContent = milestoneText;
 
     // Calendar logic
@@ -859,13 +859,7 @@ if (document.readyState === 'complete') {
 // --- GAME PLAY BUTTONS ---
 document.querySelectorAll('.play-action-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (currentUser) {
-            window.location.href = btn.getAttribute('href');
-        } else {
-            showToast('Խնդրեմ մուտք գործէք խաղալու համար։', 'error');
-            openAuthModal('login');
-        }
+        // Allow all users (including guests) to navigate to the games naturally
     });
 });
 
@@ -916,11 +910,25 @@ function initScrollSpy() {
     sections.forEach(section => observer.observe(section));
 }
 
+// --- MODAL SCROLL LOCK ---
+function initModalScrollLock() {
+    const observer = new MutationObserver(() => {
+        const isAnyModalOpen = Array.from(document.querySelectorAll('.modal')).some(modal => modal.classList.contains('show'));
+        document.body.classList.toggle('modal-open', isAnyModalOpen);
+        document.documentElement.classList.toggle('modal-open', isAnyModalOpen);
+    });
+
+    document.querySelectorAll('.modal').forEach(modal => {
+        observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
     checkUser();
     loadLeaderboard();
     initScrollSpy();
+    initModalScrollLock();
 
     // Initial reveal check
     window.dispatchEvent(new Event('scroll'));

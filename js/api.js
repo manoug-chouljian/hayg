@@ -14,7 +14,7 @@ try {
 }
 
 // --- GLOBAL TOAST SYSTEM ---
-window.showToast = function (message, type = 'success') {
+window.showToast = function (message, type = 'success', duration = null) {
     // Dismiss keyboard on mobile to prevent overlap with toasts
     const nativeInput = document.getElementById('native-keyboard-input');
     if (nativeInput) nativeInput.blur();
@@ -35,6 +35,7 @@ window.showToast = function (message, type = 'success') {
     let icon = '✅';
     if (type === 'error') icon = '❌';
     if (type === 'streak') icon = '🔥';
+    if (type === 'warning') icon = '⚠️';
 
     toast.innerHTML = `<span style="margin-right: 8px;">${icon}</span> ${message}`;
 
@@ -44,10 +45,13 @@ window.showToast = function (message, type = 'success') {
     void toast.offsetWidth;
     toast.classList.add('show');
 
+    const defaultDuration = type === 'warning' ? 10000 : 3500;
+    const finalDuration = duration !== null ? duration : defaultDuration;
+
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
-    }, 3500);
+    }, finalDuration);
 };
 
 window.HaygAPI = {
@@ -107,7 +111,7 @@ window.HaygAPI = {
 
             // Score Logic
             const scoreColumn = `${gameName}_score`;
-            const currentHighScore = existingProfile[scoreColumn] || 0;
+            const currentTotalGameScore = existingProfile[scoreColumn] || 0;
             let newTotalScore = (existingProfile.total_score || 0) + score; // Accumulate XP
 
             let updates = {
@@ -116,14 +120,9 @@ window.HaygAPI = {
                 full_name: existingProfile.full_name || user.user_metadata?.full_name || 'Անանուն',
                 last_active_date: today,
                 streak_count: newStreak,
-                total_score: newTotalScore
+                total_score: newTotalScore,
+                [scoreColumn]: currentTotalGameScore + score
             };
-
-            let isNewHighScore = false;
-            if (score > currentHighScore) {
-                updates[scoreColumn] = score;
-                isNewHighScore = true;
-            }
 
             // Update database using upsert so missing profiles are created
             const { error: updateError } = await sb_api
@@ -215,16 +214,18 @@ window.HaygAPI = {
         if (!sb_api) return;
         const user = await this.getCurrentUser();
         if (!user) {
-            window.location.href = 'index.html';
+            if (window.showToast) {
+                window.showToast("Ուշադրութիւն. Կը խաղաք որպէս հիւր։ Ձեր նիշերը պիտի չպահուին մինչեւ որ հաշիւ չստեղծէք։", "warning");
+            }
         }
     }
 };
 
 window.getRankDetails = function (xp) {
     const ranks = [
-        { name: 'Պրոնզ Գ', xp: 0, color: '#cd7f32', emoji: '🟤' },
-        { name: 'Պրոնզ Բ', xp: 500, color: '#cd7f32', emoji: '🟤' },
-        { name: 'Պրոնզ Ա', xp: 1000, color: '#cd7f32', emoji: '🟤' },
+        { name: 'Պղինձ Գ', xp: 0, color: '#cd7f32', emoji: '🟤' },
+        { name: 'Պղինձ Բ', xp: 500, color: '#cd7f32', emoji: '🟤' },
+        { name: 'Պղինձ Ա', xp: 1000, color: '#cd7f32', emoji: '🟤' },
         { name: 'Արծաթ Գ', xp: 2000, color: '#c0c0c0', emoji: '⚪' },
         { name: 'Արծաթ Բ', xp: 3500, color: '#c0c0c0', emoji: '⚪' },
         { name: 'Արծաթ Ա', xp: 5000, color: '#c0c0c0', emoji: '⚪' },
