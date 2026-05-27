@@ -1,61 +1,26 @@
-const CACHE_NAME = 'hayg-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  './faces-game.html',
-  './spelling-bee.html',
-  './typing-game.html',
-  './wordle.html',
-  './ztype-game.html',
-  './css/style.css',
-  './css/index.css',
-  './css/shared.css',
-  './css/faces-game.css',
-  './css/spelling-bee.css',
-  './css/typing-game.css',
-  './css/wordle.css',
-  './css/ztype-game.css',
-  './js/api.js',
-  './js/app.js',
-  './js/index.js',
-  './js/faces-game.js',
-  './js/spelling-bee.js',
-  './js/typing-game.js',
-  './js/wordle.js',
-  './js/ztype-game.js',
-  './js/words.js',
-  './pics/logo.png',
-  './manifest.json'
-];
-
-// Install event - caching assets
+// Install event - skip waiting to activate immediately
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
+  self.skipWaiting();
 });
 
-// Activate event - cleanup old caches
+// Activate event - purge all existing caches and claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        cacheNames.map((cacheName) => {
+          console.log('Clearing PWA Cache:', cacheName);
+          return caches.delete(cacheName);
+        })
       );
+    }).then(() => {
+      return self.clients.claim();
     })
   );
 });
 
-// Fetch event - serving from cache
+// Fetch event - simple network pass-through (no caching)
 self.addEventListener('fetch', (event) => {
-  // Ignore external API calls (Supabase)
-  if (event.request.url.includes('supabase.co')) return;
-
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+  // Pass-through to network, no offline caching
+  // We keep a dummy fetch listener to maintain PWA installability
 });
